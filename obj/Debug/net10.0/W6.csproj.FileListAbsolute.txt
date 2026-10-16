@@ -1,0 +1,15 @@
+D:\OOP\W6\bin\Debug\net10.0\W6.exe
+D:\OOP\W6\bin\Debug\net10.0\W6.deps.json
+D:\OOP\W6\bin\Debug\net10.0\W6.runtimeconfig.json
+D:\OOP\W6\bin\Debug\net10.0\W6.dll
+D:\OOP\W6\bin\Debug\net10.0\W6.pdb
+D:\OOP\W6\obj\Debug\net10.0\W6.GeneratedMSBuildEditorConfig.editorconfig
+D:\OOP\W6\obj\Debug\net10.0\W6.AssemblyInfoInputs.cache
+D:\OOP\W6\obj\Debug\net10.0\W6.AssemblyInfo.cs
+D:\OOP\W6\obj\Debug\net10.0\W6.csproj.CoreCompileInputs.cache
+D:\OOP\W6\obj\Debug\net10.0\W6.sourcelink.json
+D:\OOP\W6\obj\Debug\net10.0\W6.dll
+D:\OOP\W6\obj\Debug\net10.0\refint\W6.dll
+D:\OOP\W6\obj\Debug\net10.0\W6.pdb
+D:\OOP\W6\obj\Debug\net10.0\W6.genruntimeconfig.cache
+D:\OOP\W6\obj\Debug\net10.0\ref\W6.dll
