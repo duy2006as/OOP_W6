@@ -64,19 +64,19 @@ namespace W6.Models
                 throw new DeviceUnavailableException(device.DeviceId, device.Status);
             }
 
-            // Chuyển thiết bị thành Borrowed
-            device.MarkAsBorrowed();
-
             // Kiểm tra giới hạn mượn
-            if (_items.Count > Borrower.GetMaximumDevices())
-            {
-                throw new BorrowLimitExceededException(Borrower.BorrowerId, Borrower.GetMaximumDevices());
-            }
+if (_items.Count >= Borrower.GetMaximumDevices())
+{
+    throw new BorrowLimitExceededException(Borrower.BorrowerId, Borrower.GetMaximumDevices());
+}
 
-            // Tạo BorrowItem và thêm vào phiếu
-            DateTime dueDate = BorrowedDate.AddDays(borrowDays);
-            var item = new BorrowItem(device, BorrowedDate, dueDate);
-            _items.Add(item);
+// Tạo BorrowItem và thêm vào phiếu
+DateTime dueDate = BorrowedDate.AddDays(borrowDays);
+var item = new BorrowItem(device, BorrowedDate, dueDate);
+_items.Add(item);
+
+// Đánh dấu thiết bị đã mượn sau khi thêm thành công vào phiếu
+device.MarkAsBorrowed();
         }
 
         public decimal ReturnDevice(string deviceId, DateTime returnedDate)
