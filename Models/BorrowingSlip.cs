@@ -97,8 +97,9 @@ device.MarkAsBorrowed();
                 throw new DeviceAlreadyReturnedException(deviceId);
             }
 
-            // Ghi nhận ngày trả
+            // Ghi nhận ngày trả và khôi phục trạng thái thiết bị
             item.Return(returnedDate);
+            item.Device.MarkAsAvailable();
 
             // Tính tiền phạt trễ hạn
             decimal lateFee = 0m;
