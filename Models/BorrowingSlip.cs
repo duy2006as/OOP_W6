@@ -103,7 +103,7 @@ device.MarkAsBorrowed();
 
             // Tính tiền phạt trễ hạn
             decimal lateFee = 0m;
-            int lateDays = (returnedDate.Date - item.BorrowedDate.Date).Days;
+            int lateDays = (returnedDate.Date - item.DueDate.Date).Days;
             if (lateDays > 0)
             {
                 lateFee = lateDays * DAILY_LATE_FEE;
