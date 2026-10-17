@@ -120,10 +120,10 @@ device.MarkAsBorrowed();
             {
                 if (item.IsReturned && item.ReturnedDate.HasValue)
                 {
-                    int lateDays = (item.ReturnedDate.Value.Date - item.BorrowedDate.Date).Days;
+                    int lateDays = (item.ReturnedDate.Value.Date - item.DueDate.Date).Days;
                     if (lateDays > 0)
                     {
-                        totalFee += lateDays * DAILY_LATE_FEE;
+                         totalFee += lateDays * DAILY_LATE_FEE;
                     }
                 }
                 else if (!item.IsReturned && DateTime.Now.Date > item.DueDate.Date)
