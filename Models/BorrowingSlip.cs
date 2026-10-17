@@ -1,4 +1,4 @@
-﻿/*************************************************
+/*************************************************
 Mã sinh viên: 202418887
 Họ tên: Hoàng Đình Duy
 *************************************************/
@@ -136,7 +136,7 @@ namespace W6.Models
 
         public override string ToString()
         {
-            return $"[Phiếu mượn: {SlipId}] Phòng: {TeachingRoom} | Ngày mượn: {BorrowedDate:yyyy-MM-dd} | Người mượn: {Borrower.FullName} ({Borrower.BorrowerId}) | Số TB: {_items.Count}";
+            return $"[Phiếu mượn: {SlipId}] Phòng: {TeachingRoom} | Ngày mượn: {BorrowedDate:yyyy-MM-dd} | Người mượn: {Borrower.FullName} - {Borrower.BorrowerId} | Số TB: {_items.Count}";
         }
     }
 }

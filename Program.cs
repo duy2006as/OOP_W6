@@ -1,4 +1,4 @@
-﻿/*************************************************
+/*************************************************
 Mã sinh viên: 202418887
 Họ tên: Hoàng Đình Duy
 *************************************************/
@@ -33,15 +33,15 @@ namespace W6
                 Console.WriteLine("  6. Trả micro muộn 2 ngày");
                 Console.WriteLine("  7. Hiển thị các phiếu trả muộn, chưa trả");
                 Console.WriteLine("--- 11.2 LUỒNG PHÁT SINH NGOẠI LỆ ---");
-                Console.WriteLine("  8. Mượn điều khiển điều hòa đang bảo trì (UnderMaintenance)");
-                Console.WriteLine("  9. Trợ giảng mượn thiết bị thứ ba (vượt giới hạn)");
+                Console.WriteLine("  8. Mượn điều khiển điều hòa đang bảo trì");
+                Console.WriteLine("  9. Trợ giảng mượn thiết bị thứ ba");
                 Console.WriteLine(" 10. Thêm cùng một micro hai lần vào phiếu");
                 Console.WriteLine(" 11. Mượn micro 3 ngày dù giới hạn là 1 ngày");
                 Console.WriteLine(" 12. Trả thiết bị không thuộc phiếu mượn");
                 Console.WriteLine(" 13. Trả cùng một thiết bị hai lần");
                 Console.WriteLine(" 14. Trả thiết bị với ngày trả trước ngày mượn");
                 Console.WriteLine("--- CHỨC NĂNG BỔ SUNG & TỔNG HỢP ---");
-                Console.WriteLine(" 15. Kiểm thử kết tập lớp học ClassRoom (Đa hình & Bảo trì)");
+                Console.WriteLine(" 15. Kiểm thử kết tập lớp học ClassRoom");
                 Console.WriteLine(" 16. Chạy tự động lần lượt toàn bộ 14 trường hợp kiểm thử");
                 Console.WriteLine("  0. Thoát chương trình");
                 Console.WriteLine("==================================================================");
@@ -112,7 +112,7 @@ namespace W6
                         break;
                 }
 
-                Console.WriteLine("\nNhấn phím Enter để tiếp tục...");
+                Console.WriteLine("\n-> Đã lưu vào lịch sử hệ thống! Nhấn phím Enter để quay lại Menu...");
                 if (Console.ReadLine() == null)
                 {
                     break;

@@ -1,4 +1,4 @@
-﻿/*************************************************
+/*************************************************
 Mã sinh viên: 202418887
 Họ tên: Hoàng Đình Duy
 *************************************************/
@@ -82,7 +82,7 @@ namespace W6.Models
 
         public override string ToString()
         {
-            return $"[Phòng học] {RoomName} ({RoomId}) | Sức chứa: {Capacity} người | Số lượng thiết bị: {_devices.Count}";
+            return $"[Phòng học] {RoomName} - {RoomId} | Sức chứa: {Capacity} người | Số lượng thiết bị: {_devices.Count}";
         }
     }
 }

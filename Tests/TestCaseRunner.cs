@@ -1,4 +1,4 @@
-﻿/*************************************************
+/*************************************************
 Mã sinh viên: 202418887
 Họ tên: Hoàng Đình Duy
 *************************************************/
@@ -20,6 +20,10 @@ namespace W6.Tests
         public Microphone? CurrentMicrophone { get; private set; }
         public BorrowingSlip? CurrentSlip { get; private set; }
 
+        // Danh sách lưu lịch sử các phiếu mượn và nhật ký hoạt động
+        public List<BorrowingSlip> SlipHistory { get; } = new();
+        public List<string> ActivityLogs { get; } = new();
+
         private static string ReadString(string prompt, string defaultValue)
         {
             Console.Write(prompt);
@@ -27,7 +31,6 @@ namespace W6.Tests
             val = val?.Trim('\0', '\uFEFF', '\r', '\n', ' ');
             if (string.IsNullOrWhiteSpace(val))
             {
-                Console.WriteLine($"   Áp dụng: {defaultValue}");
                 return defaultValue;
             }
             return val.Trim();
@@ -42,7 +45,6 @@ namespace W6.Tests
             {
                 return result;
             }
-            Console.WriteLine($"   Áp dụng: {defaultValue}");
             return defaultValue;
         }
 
@@ -55,7 +57,6 @@ namespace W6.Tests
             {
                 return result;
             }
-            Console.WriteLine($"   Áp dụng: {defaultValue}");
             return defaultValue;
         }
 
@@ -68,7 +69,6 @@ namespace W6.Tests
             {
                 return result;
             }
-            Console.WriteLine($"   Áp dụng: {defaultValue:yyyy-MM-dd}");
             return defaultValue;
         }
 
@@ -91,26 +91,26 @@ namespace W6.Tests
         {
             Console.WriteLine("\n--- KIỂM THỬ 2: TẠO 3 LOẠI THIẾT BỊ GIẢNG DẠY ---");
 
-            Console.WriteLine("1. Khởi tạo Điều khiển máy chiếu:");
+            Console.WriteLine("\n1. Khởi tạo Điều khiển máy chiếu:");
             string mcId = ReadString("Nhập mã điều khiển máy chiếu: ", "MC01");
-            string mcName = ReadString("Nhập tên thiết bị: ", "Điều khiển máy chiếu Sony");
-            int mcYear = ReadInt("Nhập năm đưa vào sử dụng: ", 2023);
+            string mcName = ReadString("Nhập tên điều khiển máy chiếu: ", "Điều khiển máy chiếu Sony");
+            int mcYear = ReadInt("Nhập năm sử dụng: ", 2023);
             decimal mcPrice = ReadDecimal("Nhập giá mua: ", 350000m);
             int mcMaxDays = ReadInt("Nhập số ngày mượn tối đa: ", 3);
             CurrentProjectorRemote = new ProjectorRemote(mcId, mcName, mcYear, mcPrice, mcMaxDays);
 
             Console.WriteLine("\n2. Khởi tạo Điều khiển điều hòa:");
             string dhId = ReadString("Nhập mã điều khiển điều hòa: ", "DH01");
-            string dhName = ReadString("Nhập tên thiết bị: ", "Điều khiển điều hòa Daikin");
-            int dhYear = ReadInt("Nhập năm đưa vào sử dụng: ", 2022);
+            string dhName = ReadString("Nhập tên điều khiển điều hòa: ", "Điều khiển điều hòa Daikin");
+            int dhYear = ReadInt("Nhập năm sử dụng: ", 2022);
             decimal dhPrice = ReadDecimal("Nhập giá mua: ", 400000m);
             int dhMaxDays = ReadInt("Nhập số ngày mượn tối đa: ", 3);
             CurrentAcRemote = new AirConditionerRemote(dhId, dhName, dhYear, dhPrice, dhMaxDays);
 
             Console.WriteLine("\n3. Khởi tạo Micro không dây:");
             string micId = ReadString("Nhập mã micro: ", "MIC01");
-            string micName = ReadString("Nhập tên thiết bị: ", "Micro không dây Shure");
-            int micYear = ReadInt("Nhập năm đưa vào sử dụng: ", 2024);
+            string micName = ReadString("Nhập tên micro: ", "Micro không dây Shure");
+            int micYear = ReadInt("Nhập năm sử dụng: ", 2024);
             decimal micPrice = ReadDecimal("Nhập giá mua: ", 1200000m);
             int micMaxDays = ReadInt("Nhập số ngày mượn tối đa: ", 1);
             CurrentMicrophone = new Microphone(micId, micName, micYear, micPrice, micMaxDays);
@@ -127,7 +127,11 @@ namespace W6.Tests
             Console.WriteLine("\n--- KIỂM THỬ 3: TẠO PHIẾU MƯỢN CHO PHÒNG DẠY ---");
             if (CurrentLecturer == null)
             {
-                CurrentLecturer = new Lecturer("GV101", "Nguyễn Văn An", "Công nghệ thông tin");
+                Console.WriteLine("Chưa có thông tin người mượn, vui lòng nhập:");
+                string gvId = ReadString("Nhập mã người mượn: ", "GV101");
+                string gvName = ReadString("Nhập họ tên người mượn: ", "Nguyễn Văn An");
+                string dept = ReadString("Nhập khoa: ", "Công nghệ thông tin");
+                CurrentLecturer = new Lecturer(gvId, gvName, dept);
             }
 
             string slipId = ReadString("Nhập mã phiếu mượn: ", "PM2026-001");
@@ -135,6 +139,8 @@ namespace W6.Tests
             DateTime borrowDate = ReadDateTime("Nhập ngày mượn: ", DateTime.Today);
 
             CurrentSlip = new BorrowingSlip(slipId, CurrentLecturer, room, borrowDate);
+            if (!SlipHistory.Contains(CurrentSlip)) SlipHistory.Add(CurrentSlip);
+            ActivityLogs.Add($"Tạo phiếu mượn {CurrentSlip.SlipId} cho {CurrentSlip.Borrower.FullName}");
             Console.WriteLine("Kết quả: Khởi tạo phiếu mượn thành công!");
             Console.WriteLine(CurrentSlip);
         }
@@ -145,24 +151,28 @@ namespace W6.Tests
             Console.WriteLine("\n--- KIỂM THỬ 4: THÊM ĐIỀU KHIỂN MÁY CHIẾU VÀ MICRO VÀO PHIẾU ---");
             if (CurrentSlip == null)
             {
-                RunTestCase1();
                 RunTestCase3();
             }
 
-            if (CurrentProjectorRemote == null || CurrentMicrophone == null)
-            {
-                RunTestCase2();
-            }
+            Console.WriteLine("\nNhập thiết bị 1 - Điều khiển máy chiếu:");
+            string mcId = ReadString("Nhập mã điều khiển máy chiếu: ", CurrentProjectorRemote?.DeviceId ?? "MC01");
+            string mcName = ReadString("Nhập tên điều khiển máy chiếu: ", CurrentProjectorRemote?.DeviceName ?? "Điều khiển máy chiếu Sony");
+            int mcDays = ReadInt("Nhập số ngày mượn: ", 2);
+            CurrentProjectorRemote = new ProjectorRemote(mcId, mcName, 2023, 350000m, Math.Max(mcDays, 3));
+
+            Console.WriteLine("\nNhập thiết bị 2 - Micro không dây:");
+            string micId = ReadString("Nhập mã micro: ", CurrentMicrophone?.DeviceId ?? "MIC01");
+            string micName = ReadString("Nhập tên micro: ", CurrentMicrophone?.DeviceName ?? "Micro không dây Shure");
+            int micDays = ReadInt("Nhập số ngày mượn: ", 1);
+            CurrentMicrophone = new Microphone(micId, micName, 2024, 1200000m, Math.Max(micDays, 1));
 
             try
             {
-                int days1 = ReadInt("Nhập số ngày mượn cho điều khiển máy chiếu: ", 2);
-                CurrentSlip!.AddDevice(CurrentProjectorRemote!, days1);
-                Console.WriteLine($"-> Đã thêm: {CurrentProjectorRemote!.DeviceName}");
+                CurrentSlip!.AddDevice(CurrentProjectorRemote, mcDays);
+                Console.WriteLine($"-> Đã thêm: {CurrentProjectorRemote.DeviceName}");
 
-                int days2 = ReadInt("Nhập số ngày mượn cho micro: ", 1);
-                CurrentSlip!.AddDevice(CurrentMicrophone!, days2);
-                Console.WriteLine($"-> Đã thêm: {CurrentMicrophone!.DeviceName}");
+                CurrentSlip.AddDevice(CurrentMicrophone, micDays);
+                Console.WriteLine($"-> Đã thêm: {CurrentMicrophone.DeviceName}");
 
                 Console.WriteLine("\nDanh sách thiết bị trong phiếu:");
                 foreach (var it in CurrentSlip.Items)
@@ -182,9 +192,6 @@ namespace W6.Tests
             Console.WriteLine("\n--- KIỂM THỬ 5: TRẢ ĐIỀU KHIỂN MÁY CHIẾU ĐÚNG HẠN ---");
             if (CurrentSlip == null || CurrentProjectorRemote == null)
             {
-                RunTestCase1();
-                RunTestCase2();
-                RunTestCase3();
                 RunTestCase4();
             }
 
@@ -211,9 +218,6 @@ namespace W6.Tests
             Console.WriteLine("\n--- KIỂM THỬ 6: TRẢ MICRO MUỘN 2 NGÀY ---");
             if (CurrentSlip == null || CurrentMicrophone == null)
             {
-                RunTestCase1();
-                RunTestCase2();
-                RunTestCase3();
                 RunTestCase4();
             }
 
@@ -236,55 +240,89 @@ namespace W6.Tests
         // Trường hợp 7: Hiển thị các phiếu trả muộn, chưa trả
         public void RunTestCase7()
         {
-            Console.WriteLine("\n--- KIỂM THỬ 7: HIỂN THỊ TÌNH TRẠNG PHIẾU MƯỢN VÀ TIỀN PHẠT ---");
-            if (CurrentSlip == null)
+            Console.WriteLine("\n--- KIỂM THỬ 7: LỊCH SỬ CÁC PHIẾU MƯỢN VÀ TÌNH TRẠNG TRẢ THIẾT BỊ ---");
+            var allSlips = new List<BorrowingSlip>(SlipHistory);
+            if (CurrentSlip != null && !allSlips.Contains(CurrentSlip))
             {
-                Console.WriteLine("Chưa có phiếu mượn để hiển thị!");
+                allSlips.Add(CurrentSlip);
+            }
+
+            if (allSlips.Count == 0)
+            {
+                Console.WriteLine("Chưa có phiếu mượn nào trong lịch sử hệ thống!");
                 return;
             }
 
-            Console.WriteLine("THÔNG TIN PHIẾU MƯỢN:");
-            Console.WriteLine($"- Mã phiếu: {CurrentSlip.SlipId}");
-            Console.WriteLine($"- Người mượn: {CurrentSlip.Borrower.FullName} ({CurrentSlip.Borrower.BorrowerId})");
-            Console.WriteLine($"- Phòng học: {CurrentSlip.TeachingRoom}");
-            Console.WriteLine($"- Ngày mượn: {CurrentSlip.BorrowedDate:yyyy-MM-dd}");
-            Console.WriteLine("\nCHI TIẾT CÁC THIẾT BỊ:");
-
-            foreach (var item in CurrentSlip.Items)
+            Console.WriteLine($"Tổng số phiếu mượn đã thực hiện: {allSlips.Count}");
+            int slipIdx = 1;
+            foreach (var slip in allSlips)
             {
-                string statusDesc;
-                if (!item.IsReturned)
+                Console.WriteLine($"\n[PHIẾU {slipIdx++}] Mã phiếu: {slip.SlipId}");
+                Console.WriteLine($"- Người mượn: {slip.Borrower.FullName} - {slip.Borrower.BorrowerId}");
+                Console.WriteLine($"- Phòng học: {slip.TeachingRoom}");
+                Console.WriteLine($"- Ngày mượn: {slip.BorrowedDate:yyyy-MM-dd}");
+                Console.WriteLine("Danh sách thiết bị:");
+
+                if (slip.Items.Count == 0)
                 {
-                    statusDesc = $"CHƯA TRẢ (Hạn trả: {item.DueDate:yyyy-MM-dd})";
+                    Console.WriteLine("  * (Chưa có thiết bị nào trong phiếu)");
                 }
-                else
+
+                foreach (var item in slip.Items)
                 {
-                    int overdue = (item.ReturnedDate!.Value.Date - item.DueDate.Date).Days;
-                    statusDesc = overdue > 0 
-                        ? $"ĐÃ TRẢ MUỘN {overdue} NGÀY (Ngày trả: {item.ReturnedDate:yyyy-MM-dd})" 
-                        : $"ĐÃ TRẢ ĐÚNG HẠN (Ngày trả: {item.ReturnedDate:yyyy-MM-dd})";
+                    string statusDesc;
+                    if (!item.IsReturned)
+                    {
+                        statusDesc = $"CHƯA TRẢ - Hạn trả: {item.DueDate:yyyy-MM-dd}";
+                    }
+                    else
+                    {
+                        int overdue = (item.ReturnedDate!.Value.Date - item.DueDate.Date).Days;
+                        statusDesc = overdue > 0 
+                            ? $"ĐÃ TRẢ MUỘN {overdue} NGÀY - Ngày trả: {item.ReturnedDate:yyyy-MM-dd}" 
+                            : $"ĐÃ TRẢ ĐÚNG HẠN - Ngày trả: {item.ReturnedDate:yyyy-MM-dd}";
+                    }
+                    Console.WriteLine($"  * [{item.Device.DeviceId}] {item.Device.DeviceName}: {statusDesc}");
                 }
-                Console.WriteLine($"  * [{item.Device.DeviceId}] {item.Device.DeviceName}: {statusDesc}");
+
+                decimal totalLateFee = slip.CalculateTotalLateFee();
+                Console.WriteLine($"-> Tiền phạt trễ hạn của phiếu: {totalLateFee:N0} VNĐ");
             }
 
-            decimal totalLateFee = CurrentSlip.CalculateTotalLateFee();
-            Console.WriteLine($"\n-> TỔNG TIỀN PHẠT TRỄ HẠN CỦA PHIẾU: {totalLateFee:N0} VNĐ");
+            if (ActivityLogs.Count > 0)
+            {
+                Console.WriteLine("\n--- NHẬT KÝ HOẠT ĐỘNG HỆ THỐNG ---");
+                foreach (var log in ActivityLogs)
+                {
+                    Console.WriteLine($"  > {log}");
+                }
+            }
         }
 
-        // Ngoại lệ 1: Mượn điều khiển điều hòa đang UnderMaintenance
+        // Ngoại lệ 1: Mượn điều khiển điều hòa đang bảo trì
         public void RunTestCase8()
         {
-            Console.WriteLine("\n--- NGOẠI LỆ 1: MƯỢN THIẾT BỊ ĐANG UNDERMAINTENANCE ---");
-            string devId = ReadString("Nhập mã điều hòa: ", "DH-BAOTRI");
-            string devName = ReadString("Nhập tên điều khiển điều hòa: ", "Điều khiển Panasonic");
-            
-            var ac = new AirConditionerRemote(devId, devName, 2022, 450000m, 3, DeviceStatus.UnderMaintenance);
-            var slip = new BorrowingSlip("PM-EX01", new Lecturer("GV99", "Trần Văn B"), "Phòng B101", DateTime.Today);
+            Console.WriteLine("\n--- NGOẠI LỆ 1: MƯỢN THIẾT BỊ ĐANG BẢO TRÌ ---");
+            string slipId = ReadString("Nhập mã phiếu mượn: ", "PM-EX01");
+            string room = ReadString("Nhập phòng dạy: ", "Phòng B101");
+            string gvId = ReadString("Nhập mã người mượn: ", "GV99");
+            string gvName = ReadString("Nhập họ tên người mượn: ", "Trần Văn B");
+            var slip = new BorrowingSlip(slipId, new Lecturer(gvId, gvName), room, DateTime.Today);
+            SlipHistory.Add(slip);
+            ActivityLogs.Add($"Kiểm thử ngoại lệ 1 - Mượn thiết bị bảo trì: {slip.SlipId}");
 
+            string devId = ReadString("Nhập mã điều khiển điều hòa: ", "DH-BAOTRI");
+            string devName = ReadString("Nhập tên điều khiển điều hòa: ", "Điều khiển Panasonic");
+            int year = ReadInt("Nhập năm sử dụng: ", 2022);
+            decimal price = ReadDecimal("Nhập giá mua: ", 450000m);
+            int borrowDays = ReadInt("Nhập số ngày mượn: ", 2);
+
+            var ac = new AirConditionerRemote(devId, devName, year, price, 3, DeviceStatus.UnderMaintenance);
             Console.WriteLine($"Trạng thái ban đầu của thiết bị: {ac.Status}");
+
             try
             {
-                slip.AddDevice(ac, 2);
+                slip.AddDevice(ac, borrowDays);
             }
             catch (DeviceUnavailableException ex)
             {
@@ -307,31 +345,72 @@ namespace W6.Tests
             var ta = new TeachingAssistant(taId, taName);
             Console.WriteLine($"Hạn mức mượn của trợ giảng: {ta.GetMaximumDevices()} thiết bị");
 
-            var slip = new BorrowingSlip("PM-EX02", ta, "Phòng Lab 1", DateTime.Today);
-            var dev1 = new ProjectorRemote("MC10", "Điều khiển máy chiếu 10", 2023, 300000m);
-            var dev2 = new Microphone("MIC10", "Micro 10", 2023, 800000m);
-            var dev3 = new AirConditionerRemote("DH10", "Điều khiển điều hòa 10", 2023, 350000m);
+            string slipId = ReadString("Nhập mã phiếu mượn: ", "PM-EX02");
+            string room = ReadString("Nhập phòng dạy: ", "Phòng Lab 1");
+            var slip = new BorrowingSlip(slipId, ta, room, DateTime.Today);
+            SlipHistory.Add(slip);
+            ActivityLogs.Add($"Kiểm thử ngoại lệ 2 - Trợ giảng mượn vượt giới hạn: {slip.SlipId}");
+
+            Console.WriteLine("\nNhập thông tin thiết bị 1:");
+            string id1 = ReadString("Nhập mã thiết bị 1: ", "MC10");
+            string name1 = ReadString("Nhập tên thiết bị 1: ", "Điều khiển máy chiếu 10");
+            int days1 = ReadInt("Nhập số ngày mượn thiết bị 1: ", 2);
+            var dev1 = new ProjectorRemote(id1, name1, 2023, 300000m, maxBorrowDays: Math.Max(days1, 3));
+
+            Console.WriteLine("\nNhập thông tin thiết bị 2:");
+            string id2 = ReadString("Nhập mã thiết bị 2: ", "MIC10");
+            string name2 = ReadString("Nhập tên thiết bị 2: ", "Micro 10");
+            int days2 = ReadInt("Nhập số ngày mượn thiết bị 2: ", 1);
+            var dev2 = new Microphone(id2, name2, 2023, 800000m, maxBorrowDays: Math.Max(days2, 1));
+
+            Console.WriteLine("\nNhập thông tin thiết bị 3:");
+            string id3 = ReadString("Nhập mã thiết bị 3: ", "DH10");
+            string name3 = ReadString("Nhập tên thiết bị 3: ", "Điều khiển điều hòa 10");
+            int days3 = ReadInt("Nhập số ngày mượn thiết bị 3: ", 2);
+            var dev3 = new AirConditionerRemote(id3, name3, 2023, 350000m, maxBorrowDays: Math.Max(days3, 3));
 
             try
             {
-                Console.WriteLine("Thêm thiết bị 1...");
-                slip.AddDevice(dev1, 2);
+                Console.WriteLine("\nThêm thiết bị 1...");
+                slip.AddDevice(dev1, days1);
+                Console.WriteLine($"-> Đã thêm: {dev1.DeviceName}");
+
                 Console.WriteLine("Thêm thiết bị 2...");
-                slip.AddDevice(dev2, 1);
-                Console.WriteLine("Thêm thiết bị 3 (vượt quá giới hạn 2 thiết bị)...");
-                slip.AddDevice(dev3, 2);
+                slip.AddDevice(dev2, days2);
+                Console.WriteLine($"-> Đã thêm: {dev2.DeviceName}");
+
+                Console.WriteLine("Thêm thiết bị 3...");
+                slip.AddDevice(dev3, days3);
+                Console.WriteLine($"-> Đã thêm: {dev3.DeviceName}");
 
                 Console.WriteLine($"Số thiết bị hiện tại trong phiếu: {slip.Items.Count}");
+
+                Console.WriteLine("\nNhập thông tin thiết bị 4:");
+                string id4 = ReadString("Nhập mã thiết bị 4: ", "MC11");
+                string name4 = ReadString("Nhập tên thiết bị 4: ", "Điều khiển máy chiếu 11");
+                int days4 = ReadInt("Nhập số ngày mượn thiết bị 4: ", 1);
+                var dev4 = new ProjectorRemote(id4, name4, 2023, 300000m, maxBorrowDays: Math.Max(days4, 3));
+
                 Console.WriteLine("Thử thêm thiết bị 4...");
-                var dev4 = new ProjectorRemote("MC11", "Điều khiển máy chiếu 11", 2023, 300000m);
                 try
                 {
-                    slip.AddDevice(dev4, 1);
+                    slip.AddDevice(dev4, days4);
                 }
                 catch (BorrowLimitExceededException)
                 {
                     Console.WriteLine("-> Thêm thiết bị 4 bị từ chối do vượt quá giới hạn.");
                     Console.WriteLine($"-> Trạng thái của thiết bị 4: {dev4.Status}");
+                    
+                    Console.WriteLine("Thử cho người khác mượn thiết bị 4...");
+                    var slipOther = new BorrowingSlip("PM-TEST", new Lecturer("GV02", "Trần D"), "Phòng B2", DateTime.Today);
+                    try
+                    {
+                        slipOther.AddDevice(dev4, 1);
+                    }
+                    catch (DeviceUnavailableException)
+                    {
+                        Console.WriteLine("-> Thất bại: Không thể mượn vì thiết bị 4 đã bị kẹt ở trạng thái Borrowed!");
+                    }
                 }
             }
             catch (BorrowLimitExceededException ex)
@@ -350,16 +429,27 @@ namespace W6.Tests
         public void RunTestCase10()
         {
             Console.WriteLine("\n--- NGOẠI LỆ 3: THÊM CÙNG MỘT MICRO HAI LẦN VÀO PHIẾU ---");
+            string slipId = ReadString("Nhập mã phiếu mượn: ", "PM-EX03");
+            string room = ReadString("Nhập phòng dạy: ", "Phòng Hội thảo");
+            string gvId = ReadString("Nhập mã người mượn: ", "GV01");
+            string gvName = ReadString("Nhập họ tên người mượn: ", "Phạm Văn D");
+            var slip = new BorrowingSlip(slipId, new Lecturer(gvId, gvName), room, DateTime.Today);
+            SlipHistory.Add(slip);
+            ActivityLogs.Add($"Kiểm thử ngoại lệ 3 - Thêm trùng thiết bị: {slip.SlipId}");
+
             string micId = ReadString("Nhập mã micro: ", "MIC99");
-            var mic = new Microphone(micId, "Micro hội trường", 2024, 1500000m);
-            var slip = new BorrowingSlip("PM-EX03", new Lecturer("GV01", "Phạm Văn D"), "Phòng Hội thảo", DateTime.Today);
+            string micName = ReadString("Nhập tên micro: ", "Micro hội trường");
+            int days = ReadInt("Nhập số ngày mượn: ", 1);
+            var mic = new Microphone(micId, micName, 2024, 1500000m, maxBorrowDays: Math.Max(days, 1));
 
             try
             {
-                Console.WriteLine("Thêm micro lần 1...");
-                slip.AddDevice(mic, 1);
+                Console.WriteLine("\nThêm micro lần 1...");
+                slip.AddDevice(mic, days);
+                Console.WriteLine($"-> Đã thêm lần 1: {mic.DeviceName}");
+
                 Console.WriteLine("Thêm lại chính micro đó lần 2...");
-                slip.AddDevice(mic, 1);
+                slip.AddDevice(mic, days);
             }
             catch (DuplicateDeviceException ex)
             {
@@ -376,12 +466,21 @@ namespace W6.Tests
         // Ngoại lệ 4: Mượn micro trong 3 ngày dù giới hạn là 1 ngày
         public void RunTestCase11()
         {
-            Console.WriteLine("\n--- NGOẠI LỆ 4: MƯỢN MICRO TRONG 3 NGÀY DÙ GIỚI HẠN LÀ 1 NGÀY ---");
-            string micId = ReadString("Nhập mã micro: ", "MIC02");
-            var mic = new Microphone(micId, "Micro cầm tay", 2024, 1000000m, maxBorrowDays: 1);
-            var slip = new BorrowingSlip("PM-EX04", new Lecturer("GV01", "Phạm Văn D"), "Phòng C301", DateTime.Today);
+            Console.WriteLine("\n--- NGOẠI LỆ 4: MƯỢN MICRO 3 NGÀY DÙ GIỚI HẠN LÀ 1 NGÀY ---");
+            string slipId = ReadString("Nhập mã phiếu mượn: ", "PM-EX04");
+            string room = ReadString("Nhập phòng dạy: ", "Phòng C301");
+            string gvId = ReadString("Nhập mã người mượn: ", "GV01");
+            string gvName = ReadString("Nhập họ tên người mượn: ", "Phạm Văn D");
+            var slip = new BorrowingSlip(slipId, new Lecturer(gvId, gvName), room, DateTime.Today);
+            SlipHistory.Add(slip);
+            ActivityLogs.Add($"Kiểm thử ngoại lệ 4 - Mượn quá ngày tối đa: {slip.SlipId}");
 
-            int requestedDays = ReadInt("Nhập số ngày mượn: ", 3);
+            string micId = ReadString("Nhập mã micro: ", "MIC02");
+            string micName = ReadString("Nhập tên micro: ", "Micro cầm tay");
+            int maxDays = ReadInt("Nhập số ngày mượn tối đa của thiết bị: ", 1);
+            int requestedDays = ReadInt("Nhập số ngày muốn mượn: ", 3);
+
+            var mic = new Microphone(micId, micName, 2024, 1000000m, maxBorrowDays: maxDays);
             Console.WriteLine($"Giới hạn của thiết bị: {mic.MaxBorrowDays} ngày | Yêu cầu: {requestedDays} ngày");
 
             try
@@ -404,14 +503,27 @@ namespace W6.Tests
         public void RunTestCase12()
         {
             Console.WriteLine("\n--- NGOẠI LỆ 5: TRẢ THIẾT BỊ KHÔNG THUỘC PHIẾU ---");
-            var slip = new BorrowingSlip("PM-EX05", new Lecturer("GV01", "Phạm Văn D"), "Phòng D102", DateTime.Today);
-            var dev1 = new ProjectorRemote("MC01", "Điều khiển phòng D102", 2023, 300000m);
-            slip.AddDevice(dev1, 2);
+            string slipId = ReadString("Nhập mã phiếu mượn: ", "PM-EX05");
+            string room = ReadString("Nhập phòng dạy: ", "Phòng D102");
+            string gvId = ReadString("Nhập mã người mượn: ", "GV01");
+            string gvName = ReadString("Nhập họ tên người mượn: ", "Phạm Văn D");
+            var slip = new BorrowingSlip(slipId, new Lecturer(gvId, gvName), room, DateTime.Today);
+            SlipHistory.Add(slip);
+            ActivityLogs.Add($"Kiểm thử ngoại lệ 5 - Trả thiết bị lạ: {slip.SlipId}");
 
-            string invalidId = ReadString("Nhập mã thiết bị lạ để trả: ", "MC999");
+            string devId = ReadString("Nhập mã thiết bị mượn: ", "MC01");
+            string devName = ReadString("Nhập tên thiết bị mượn: ", "Điều khiển phòng D102");
+            int days = ReadInt("Nhập số ngày mượn: ", 2);
+            var dev = new ProjectorRemote(devId, devName, 2023, 300000m, maxBorrowDays: Math.Max(days, 3));
+            slip.AddDevice(dev, days);
+            Console.WriteLine($"-> Đã thêm thiết bị vào phiếu: {dev.DeviceName}");
+
+            string invalidId = ReadString("Nhập mã thiết bị lạ muốn trả: ", "MC999");
+            DateTime returnDate = ReadDateTime("Nhập ngày trả: ", DateTime.Today.AddDays(1));
+
             try
             {
-                slip.ReturnDevice(invalidId, DateTime.Today.AddDays(1));
+                slip.ReturnDevice(invalidId, returnDate);
             }
             catch (DeviceNotInSlipException ex)
             {
@@ -429,18 +541,32 @@ namespace W6.Tests
         public void RunTestCase13()
         {
             Console.WriteLine("\n--- NGOẠI LỆ 6: TRẢ CÙNG MỘT THIẾT BỊ HAI LẦN ---");
-            var slip = new BorrowingSlip("PM-EX06", new Lecturer("GV01", "Phạm Văn D"), "Phòng E201", DateTime.Today);
-            var dev = new ProjectorRemote("MC50", "Điều khiển phòng E201", 2023, 300000m);
-            slip.AddDevice(dev, 2);
+            string slipId = ReadString("Nhập mã phiếu mượn: ", "PM-EX06");
+            string room = ReadString("Nhập phòng dạy: ", "Phòng E201");
+            string gvId = ReadString("Nhập mã người mượn: ", "GV01");
+            string gvName = ReadString("Nhập họ tên người mượn: ", "Phạm Văn D");
+            var slip = new BorrowingSlip(slipId, new Lecturer(gvId, gvName), room, DateTime.Today);
+            SlipHistory.Add(slip);
+            ActivityLogs.Add($"Kiểm thử ngoại lệ 6 - Trả thiết bị 2 lần: {slip.SlipId}");
+
+            string devId = ReadString("Nhập mã thiết bị: ", "MC50");
+            string devName = ReadString("Nhập tên thiết bị: ", "Điều khiển phòng E201");
+            int days = ReadInt("Nhập số ngày mượn: ", 2);
+            var dev = new ProjectorRemote(devId, devName, 2023, 300000m, maxBorrowDays: Math.Max(days, 3));
+            slip.AddDevice(dev, days);
+            Console.WriteLine($"-> Đã thêm thiết bị vào phiếu: {dev.DeviceName}");
+
+            DateTime returnDate1 = ReadDateTime("Nhập ngày trả lần 1: ", DateTime.Today.AddDays(2));
+            DateTime returnDate2 = ReadDateTime("Nhập ngày trả lần 2: ", DateTime.Today.AddDays(2));
 
             try
             {
-                Console.WriteLine("Trả thiết bị lần 1...");
-                slip.ReturnDevice("MC50", DateTime.Today.AddDays(2));
+                Console.WriteLine("\nTrả thiết bị lần 1...");
+                slip.ReturnDevice(devId, returnDate1);
                 Console.WriteLine("-> Trả lần 1 thành công.");
 
                 Console.WriteLine("Thử trả lại thiết bị lần 2...");
-                slip.ReturnDevice("MC50", DateTime.Today.AddDays(2));
+                slip.ReturnDevice(devId, returnDate2);
             }
             catch (DeviceAlreadyReturnedException ex)
             {
@@ -458,17 +584,28 @@ namespace W6.Tests
         public void RunTestCase14()
         {
             Console.WriteLine("\n--- NGOẠI LỆ 7: TRẢ THIẾT BỊ VỚI NGÀY TRẢ TRƯỚC NGÀY MƯỢN ---");
-            DateTime borrowDate = DateTime.Today;
-            var slip = new BorrowingSlip("PM-EX07", new Lecturer("GV01", "Phạm Văn D"), "Phòng F301", borrowDate);
-            var dev = new ProjectorRemote("MC60", "Điều khiển phòng F301", 2023, 300000m);
-            slip.AddDevice(dev, 2);
+            string slipId = ReadString("Nhập mã phiếu mượn: ", "PM-EX07");
+            string room = ReadString("Nhập phòng dạy: ", "Phòng F301");
+            string gvId = ReadString("Nhập mã người mượn: ", "GV01");
+            string gvName = ReadString("Nhập họ tên người mượn: ", "Phạm Văn D");
+            DateTime borrowDate = ReadDateTime("Nhập ngày mượn: ", DateTime.Today);
+            var slip = new BorrowingSlip(slipId, new Lecturer(gvId, gvName), room, borrowDate);
+            SlipHistory.Add(slip);
+            ActivityLogs.Add($"Kiểm thử ngoại lệ 7 - Ngày trả trước ngày mượn: {slip.SlipId}");
 
-            DateTime invalidDate = borrowDate.AddDays(-2);
+            string devId = ReadString("Nhập mã thiết bị: ", "MC60");
+            string devName = ReadString("Nhập tên thiết bị: ", "Điều khiển phòng F301");
+            int days = ReadInt("Nhập số ngày mượn: ", 2);
+            var dev = new ProjectorRemote(devId, devName, 2023, 300000m, maxBorrowDays: Math.Max(days, 2));
+            slip.AddDevice(dev, days);
+            Console.WriteLine($"-> Đã thêm thiết bị vào phiếu: {dev.DeviceName}");
+
+            DateTime invalidDate = ReadDateTime("Nhập ngày trả: ", borrowDate.AddDays(-2));
             Console.WriteLine($"Ngày mượn: {borrowDate:yyyy-MM-dd} | Ngày trả: {invalidDate:yyyy-MM-dd}");
 
             try
             {
-                slip.ReturnDevice("MC60", invalidDate);
+                slip.ReturnDevice(devId, invalidDate);
             }
             catch (InvalidReturnDateException ex)
             {
@@ -492,9 +629,26 @@ namespace W6.Tests
 
             var room = new ClassRoom(roomId, roomName, capacity);
 
-            var d1 = new AirConditionerRemote("DH501", "Điều khiển điều hòa", 2018, 500000m);
-            var d2 = new Microphone("MIC501", "Micro trợ giảng", 2024, 1200000m, 1, DeviceStatus.UnderMaintenance);
-            var d3 = new ProjectorRemote("MC501", "Điều khiển máy chiếu", 2023, 350000m);
+            Console.WriteLine("\nNhập thiết bị 1 - Điều khiển điều hòa:");
+            string d1Id = ReadString("Nhập mã thiết bị 1: ", "DH501");
+            string d1Name = ReadString("Nhập tên thiết bị 1: ", "Điều khiển điều hòa");
+            int d1Year = ReadInt("Nhập năm sử dụng: ", 2018);
+            decimal d1Price = ReadDecimal("Nhập giá mua: ", 500000m);
+            var d1 = new AirConditionerRemote(d1Id, d1Name, d1Year, d1Price);
+
+            Console.WriteLine("\nNhập thiết bị 2 - Micro đang bảo trì:");
+            string d2Id = ReadString("Nhập mã thiết bị 2: ", "MIC501");
+            string d2Name = ReadString("Nhập tên thiết bị 2: ", "Micro trợ giảng");
+            int d2Year = ReadInt("Nhập năm sử dụng: ", 2024);
+            decimal d2Price = ReadDecimal("Nhập giá mua: ", 1200000m);
+            var d2 = new Microphone(d2Id, d2Name, d2Year, d2Price, 1, DeviceStatus.UnderMaintenance);
+
+            Console.WriteLine("\nNhập thiết bị 3 - Điều khiển máy chiếu:");
+            string d3Id = ReadString("Nhập mã thiết bị 3: ", "MC501");
+            string d3Name = ReadString("Nhập tên thiết bị 3: ", "Điều khiển máy chiếu");
+            int d3Year = ReadInt("Nhập năm sử dụng: ", 2023);
+            decimal d3Price = ReadDecimal("Nhập giá mua: ", 350000m);
+            var d3 = new ProjectorRemote(d3Id, d3Name, d3Year, d3Price);
 
             room.AddDevice(d1);
             room.AddDevice(d2);
